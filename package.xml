@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>rosneuro_smr_processing</name>
+  <version>0.0.0</version>
+  <description>The rosneuro_smr_processing package</description>
+
+  <maintainer email="paolo@todo.todo">paolo</maintainer>
+
+
+  <license>TODO</license>
+
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>rosneuro_buffers</build_depend>
+  <build_depend>rosneuro_buffers_ringbuffer</build_depend>
+  <build_depend>rosneuro_decoder</build_depend>
+  <build_depend>rosneuro_decoder_gaussian</build_depend>
+  <build_depend>rosneuro_filters</build_depend>
+  <build_depend>rosneuro_filters_laplacian</build_depend>
+  <build_depend>rosneuro_msgs</build_depend>
+  <build_export_depend>roscpp</build_export_depend>
+  <build_export_depend>rosneuro_buffers</build_export_depend>
+  <build_export_depend>rosneuro_buffers_ringbuffer</build_export_depend>
+  <build_export_depend>rosneuro_decoder</build_export_depend>
+  <build_export_depend>rosneuro_decoder_gaussian</build_export_depend>
+  <build_export_depend>rosneuro_filters</build_export_depend>
+  <build_export_depend>rosneuro_filters_laplacian</build_export_depend>
+  <build_export_depend>rosneuro_msgs</build_export_depend>
+  <exec_depend>roscpp</exec_depend>
+  <exec_depend>rosneuro_buffers</exec_depend>
+  <exec_depend>rosneuro_buffers_ringbuffer</exec_depend>
+  <exec_depend>rosneuro_decoder</exec_depend>
+  <exec_depend>rosneuro_decoder_gaussian</exec_depend>
+  <exec_depend>rosneuro_filters</exec_depend>
+  <exec_depend>rosneuro_filters_laplacian</exec_depend>
+  <exec_depend>rosneuro_msgs</exec_depend>
+  <depend>roslib</depend> 
+  <depend>std_msgs</depend>
+  <depend>rosneuro_pwelch</depend>  
+
+
+</package>

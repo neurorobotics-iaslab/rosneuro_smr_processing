@@ -1,0 +1,43 @@
+<launch>	
+	<!-- ACQUISITION -->
+    <!-- arguments -->
+	<arg name="plugin" default='rosneuro::EGDDevice'/>
+	<arg name="devarg" default='/home/paolo/s3_prova.gdf'/>
+	<arg name="framerate" default='16'/>
+	<arg name="samplerate" default='512'/>
+
+    <!-- node -->
+	<node name="acquisition" pkg="rosneuro_acquisition" type="acquisition" output="screen">
+  	  <param name="~plugin" 	  value="$(arg plugin)"/>
+  	  <param name="~devarg" 	  value="$(arg devarg)"/>
+  	  <param name="~samplerate" value="$(arg samplerate)"/>
+  	  <param name="~framerate"  value="$(arg framerate)"/>
+  	</node> 
+    
+    <!-- PROCESSING -->
+    <!-- arguments -->
+	<rosparam command="load" file="$(find rosneuro_smr_processing)/cfg/ringbuffer.yaml"/>
+	<rosparam command="load" file="$(find rosneuro_smr_processing)/cfg/16ch/laplacian.yaml"/>
+	<rosparam command="load" file="$(find rosneuro_smr_processing)/cfg/16ch/gaussianCfg.yaml"/>
+	<arg name="plugin_decoder" default='rosneuro::decoder::Gaussian'/>
+	<arg name="cfg_name" default='GaussianCfg'/>
+    <arg name="nchannels" default='16'/>
+    <arg name="wlength" default='256'/>
+    <arg name="wtype" default='2'/>
+    <arg name="novl" default='128'/>
+    <arg name="dolog" default='1'/>
+    <arg name="nsamples" default='32'/>
+
+    <!-- node -->
+	<node name="smr" pkg="rosneuro_smr_processing" type="smr" output="screen"> 
+		<param name="plugin" 	  value="$(arg plugin_decoder)"/>
+        <param name="cfg_name" 	  value="$(arg cfg_name)"/>
+        <param name="nchannels"   value="$(arg nchannels)"/>
+        <param name="wlength" 	  value="$(arg wlength)"/>
+        <param name="wtype" 	  value="$(arg wtype)"/> <!--2 is hamming-->
+        <param name="novl" 	      value="$(arg novl)"/>
+        <param name="dolog" 	  value="$(arg dolog)"/>
+        <param name="nsamples" 	  value="$(arg nsamples)"/>
+        <param name="samplerate"  value='512'/>
+	</node>
+</launch>
