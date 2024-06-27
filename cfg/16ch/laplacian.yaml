@@ -1,4 +1,4 @@
-LaplacianCfg16:
+LaplacianCfg:
   name: laplacian
   type: LaplacianFilterDouble
   params: 

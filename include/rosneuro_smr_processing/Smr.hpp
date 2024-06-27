@@ -56,6 +56,10 @@ class Smr {
         bool has_new_data_;
         bool is_first_message_;
 
+        std::ofstream outputFile_features_;
+        std::ofstream outputFile_rawprobs_;
+
+
 };
 
 Smr::Smr(void) : p_nh_("~") {
@@ -71,6 +75,8 @@ Smr::Smr(void) : p_nh_("~") {
 }
 
 Smr::~Smr(void){
+    this->outputFile_features_.close();
+    this->outputFile_rawprobs_.close();
 }
 
 bool Smr::configure(void){
@@ -87,7 +93,7 @@ bool Smr::configure(void){
 	ROS_INFO("[%s] buffer configuration succeeded", this->buffer_->name().c_str());
 
     // Configure laplacian
-    if(this->laplacian_->configure("LaplacianCfg16") == false) { // -> the laplacian's parameters are saved in a yaml file
+    if(this->laplacian_->configure("LaplacianCfg") == false) { // -> the laplacian's parameters are saved in a yaml file
 		ROS_ERROR("[%s] filter configuration failed", this->laplacian_->name().c_str());
 		return false;
 	}
@@ -135,6 +141,17 @@ bool Smr::configure(void){
 		ROS_ERROR("[decoder] error in the configuration of the decoder");
         return false;
 	}
+
+    const std::string fileoutput1 = "/home/paolo/rosneuro_ws/src/rosneuro_smr_processing/features.csv";
+    const std::string fileoutput2 = "/home/paolo/rosneuro_ws/src/rosneuro_smr_processing/rawprobs.csv";
+    this->outputFile_features_.open(fileoutput1);
+    if(this->outputFile_features_.is_open()){
+        std::cout << "file for features opened" << std::endl;
+    }
+    this->outputFile_rawprobs_.open(fileoutput2);
+    if(this->outputFile_rawprobs_.is_open()){
+        std::cout << "file for features opened" << std::endl;
+    }
 	
 	return true;
 }
@@ -174,6 +191,26 @@ bool Smr::classify(void){
 
     Eigen::VectorXf features = this->decoder_->getFeatures(this->psd_.transpose().cast<float>());
     this->rawProb_ = this->decoder_->apply(features);
+
+    if(this->outputFile_features_.is_open()){
+        ROS_INFO("features size: %d x %d", features.rows(), features.cols());
+        for(int i = 0; i < features.cols(); i++){
+            for(int j = 0; j < features.rows(); j++){
+                this->outputFile_features_ << features(j, i) << " ";
+            }
+            this->outputFile_features_ << std::endl;
+        }
+    }
+
+    if(this->outputFile_rawprobs_.is_open()){
+        ROS_INFO("prob size: %d x %d", this->rawProb_.rows(), this->rawProb_.cols());
+        for(int i = 0; i < this->rawProb_.cols(); i++){
+            for(int j = 0; j < this->rawProb_.rows(); j++){
+                this->outputFile_rawprobs_ << this->rawProb_(j, i) << " ";
+            }
+            this->outputFile_rawprobs_ << std::endl;
+        }
+    }
 
     return true;
 }
