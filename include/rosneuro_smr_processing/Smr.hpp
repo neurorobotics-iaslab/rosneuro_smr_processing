@@ -178,6 +178,8 @@ void Smr::run(void){
 }
 
 bool Smr::classify(void){
+    const static Eigen::IOFormat format(Eigen::FullPrecision, Eigen::DontAlignCols, ", ", "\n");
+
 
     this->buffer_->add(this->data_in_.transpose().cast<double>()); // [samples x channels]
 
@@ -189,27 +191,41 @@ bool Smr::classify(void){
 
     this->psd_ = this->pwelch_->apply(this->data_lap_);
 
-    Eigen::VectorXf features = this->decoder_->getFeatures(this->psd_.transpose().cast<float>());
+    Eigen::Matrix<float, Eigen::Dynamic, 1> features = this->decoder_->getFeatures(this->psd_.transpose().cast<float>());
     this->rawProb_ = this->decoder_->apply(features);
 
+    Eigen::Matrix<float, Eigen::Dynamic, 1> probs = this->rawProb_;
+
     if(this->outputFile_features_.is_open()){
-        ROS_INFO("features size: %d x %d", features.rows(), features.cols());
+        ROS_INFO("features size: %ld x %ld", features.rows(), features.cols());
+        this->outputFile_features_ << features.transpose().format(format) << std::endl;
+        //this->outputFile_features_ << features.format(this->format);
+        
+        /*
         for(int i = 0; i < features.cols(); i++){
             for(int j = 0; j < features.rows(); j++){
-                this->outputFile_features_ << features(j, i) << " ";
+                //this->outputFile_features_ << features(j, i) << " ";
+                std::cout << features(j,i) << " ";
             }
-            this->outputFile_features_ << std::endl;
+            //this->outputFile_features_ << std::endl;
+            std::cout << std::endl;
         }
+        */
     }
 
     if(this->outputFile_rawprobs_.is_open()){
-        ROS_INFO("prob size: %d x %d", this->rawProb_.rows(), this->rawProb_.cols());
+        ROS_INFO("prob size: %ld x %ld", this->rawProb_.rows(), this->rawProb_.cols());
+        this->outputFile_rawprobs_ << probs.transpose().format(format) << std::endl;
+        /*
         for(int i = 0; i < this->rawProb_.cols(); i++){
             for(int j = 0; j < this->rawProb_.rows(); j++){
-                this->outputFile_rawprobs_ << this->rawProb_(j, i) << " ";
+                //this->outputFile_rawprobs_ << this->rawProb_(j, i) << " ";
+                std::cout << this->rawProb_(j,i) << " ";
             }
-            this->outputFile_rawprobs_ << std::endl;
+            //this->outputFile_rawprobs_ << std::endl;
+            std::cout << std::endl;
         }
+        */
     }
 
     return true;
