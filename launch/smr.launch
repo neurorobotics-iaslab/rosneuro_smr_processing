@@ -2,25 +2,34 @@
 	<!-- ACQUISITION -->
     <!-- arguments -->
 	<arg name="plugin" default='rosneuro::EGDDevice'/>
-	<arg name="devarg" default='/home/paolo/a5_prova.gdf'/>
+	<arg name="devarg" default='/var/home/piero/p4test.gdf'/>
 	<arg name="framerate" default='16'/>
 	<arg name="samplerate" default='512'/>
 
-    <!-- node -->
+    <arg name="conf" default='$(find rosneuro_smr_processing)/cfg/32ch/test.yaml'/>
+
+    <!-- node 
 	<node name="acquisition" pkg="rosneuro_acquisition" type="acquisition" output="screen">
-  	  <param name="~plugin" 	  value="$(arg plugin)"/>
-  	  <param name="~devarg" 	  value="$(arg devarg)"/>
+  	  <param name="~plugin" 	value="$(arg plugin)"/>
+  	  <param name="~devarg" 	value="$(arg devarg)"/>
   	  <param name="~samplerate" value="$(arg samplerate)"/>
   	  <param name="~framerate"  value="$(arg framerate)"/>
-  	</node> 
+  	</node> -->
     
     <!-- PROCESSING -->
     <!-- arguments -->
 	<rosparam command="load" file="$(find rosneuro_smr_processing)/cfg/ringbuffer.yaml"/>
 	<rosparam command="load" file="$(find rosneuro_smr_processing)/cfg/32ch/laplacian.yaml"/>
-	<rosparam command="load" file="$(find rosneuro_smr_processing)/cfg/32ch/gaussianCfg.yaml"/>
-	<arg name="plugin_decoder" default='rosneuro::decoder::Gaussian'/>
-	<arg name="cfg_name" default='GaussianCfg'/>
+
+	<!-- <rosparam command="load" file="$(find rosneuro_smr_processing)/cfg/32ch/test.yaml"/> -->
+    <rosparam command="load" file="$(arg conf)"/>
+
+    <!-- <rosparam command="load" file="/var/home/piero/Projects/ros/errp_usa_ws/cfg/base22-Jan-2025sub_errp_p_4.yaml"/> -->
+
+    <rosparam command="load" file="$(find wheelchair_launchers)/config/Filters.yaml" />
+
+	<arg name="plugin_decoder" default='rosneuro::decoder::Riemann'/>
+	<arg name="cfg_name" default='RiemannCfg'/>
     <arg name="nchannels" default='32'/>
     <arg name="wlength" default='256'/>
     <arg name="wtype" default='2'/>
@@ -28,8 +37,17 @@
     <arg name="dolog" default='1'/>
     <arg name="nsamples" default='32'/>
 
+    <node name="filterchain_node" pkg="rosneuro_filters" type="filterchain_node" output="screen" >
+		  <param name="configname" value="ChainCfgFilter" />
+	</node>	
+
     <!-- node -->
 	<node name="smr" pkg="rosneuro_smr_processing" type="smr" output="screen"> 
+        <remap from="/neurodata" to="/neurodata_filtered" />
+
+        <param name="psd_required"       value="False" />
+        <param name="laplacian_required" value="False" />
+
 		<param name="plugin" 	  value="$(arg plugin_decoder)"/>
         <param name="cfg_name" 	  value="$(arg cfg_name)"/>
         <param name="nchannels"   value="$(arg nchannels)"/>

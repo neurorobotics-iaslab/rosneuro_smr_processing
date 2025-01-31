@@ -7,7 +7,6 @@ find_package(catkin REQUIRED COMPONENTS
   rosneuro_buffers
   rosneuro_buffers_ringbuffer
   rosneuro_decoder
-  rosneuro_decoder_gaussian
   rosneuro_filters
   rosneuro_filters_laplacian
   rosneuro_msgs
@@ -28,7 +27,6 @@ catkin_package(
     rosneuro_filters_laplacian
     rosneuro_buffers_ringbuffer
     rosneuro_decoder
-    rosneuro_decoder_gaussian
     rosneuro_msgs
   DEPENDS
 )

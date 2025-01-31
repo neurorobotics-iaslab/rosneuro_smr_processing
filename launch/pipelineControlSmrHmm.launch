@@ -3,7 +3,7 @@
 	<!-- ACQUISITION -->
   <!-- arguments -->
 	<arg name="plugin"     default='rosneuro::EGDDevice'/>
-  <arg name="devarg"     default='$(env HOME)/data.gdf'/>
+	<arg name="devarg"     default='$(env HOME)/data32.gdf'/>
 	<arg name="framerate"  default='16'/>
 	<arg name="samplerate" default='512'/>
 
@@ -19,11 +19,11 @@
   <!-- PROCESSING -->
   <!-- arguments -->
 	<rosparam command="load" file="$(find rosneuro_smr_processing)/cfg/ringbuffer.yaml"/>
-	<rosparam command="load" file="$(find rosneuro_smr_processing)/cfg/16ch/laplacian.yaml"/>
-	<rosparam command="load" file="$(find rosneuro_smr_processing)/cfg/16ch/gaussianCfg.yaml"/>
-	<arg name="plugin_decoder" default='rosneuro::decoder::Gaussian'/>
-	<arg name="cfg_name"       default='GaussianCfg'/>
-  <arg name="nchannels"      default='16'/>
+	<rosparam command="load" file="$(find rosneuro_smr_processing)/cfg/32ch/laplacian.yaml"/>
+	<rosparam command="load" file="$(find rosneuro_smr_processing)/cfg/16ch/hmmCfg.yaml"/>
+	<arg name="plugin_decoder" default='rosneuro::decoder::Hmm'/>
+	<arg name="cfg_name"       default='HmmCfg'/>
+  <arg name="nchannels"      default='32'/>
   <arg name="wlength"        default='256'/>
   <arg name="wtype"          default='2'/>
   <arg name="novl"           default='128'/>
@@ -66,7 +66,7 @@
   <arg name="show_on_rest"        default='True'/>
 
   <!-- node -->
-  <node name="controlwheel" pkg="rosneuro_feedback_wheel" type="controlwheel"  output="screen">
+  <node name="controlwheel" pkg="rosneuro_feedback_wheel" type="controlwheel"  output="screen" required="true">
     <rosparam param="modality" subst_value="True">$(arg modality)</rosparam>
     <rosparam param="thresholds" subst_value="True">$(arg thresholds_feedback)</rosparam>
     <rosparam param="classes" subst_value="True">$(arg classes)</rosparam>

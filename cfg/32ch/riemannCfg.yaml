@@ -1,0 +1,30 @@
+RiemannCfg:
+  name: Riemann
+  type: RiemannCfg
+  params: 
+    channels: ""
+    subjects: "p"
+    mode: "fgda"
+    w: " 0   0   1   0   2   0   0;
+              0   0   0   0   0   0   0;
+              0   0  18   3  19   0   0;
+              4  20   5  21   6  22   7;
+             23   8  24   9  25  10  26;
+             11  27  12   0  13  28  14;
+             29  15  30  16  31  17  32"
+    Cg: " 0   0   1   0   2   0   0;
+              0   0   0   0   0   0   0;
+              0   0  18   3  19   0   0;
+              4  20   5  21   6  22   7;
+             23   8  24   9  25  10  26;
+             11  27  12   0  13  28  14;
+             29  15  30  16  31  17  32"
+    treshold: ""
+    class_prototypes_1: ""
+    class_prototypes_2: ""
+    tasks: "0; 1;"
+    w_file: str
+
+    
+
+
