@@ -2,7 +2,7 @@
 	<!-- ACQUISITION -->
     <!-- arguments -->
 	<arg name="plugin"     default='rosneuro::EGDDevice'/>
-	<arg name="devarg"     default='/home/paolo/s3_prova.gdf'/>
+	<arg name="devarg"     default='/home/paolo/prova16ch.gdf'/>
 	<arg name="framerate"  default='16'/>
 	<arg name="samplerate" default='512'/>
 

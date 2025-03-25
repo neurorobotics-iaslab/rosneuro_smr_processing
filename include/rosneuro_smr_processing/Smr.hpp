@@ -197,9 +197,9 @@ void Smr::on_received_data(const rosneuro_msgs::NeuroFrame& msg) {
     this->out_.neuroheader = msg.neuroheader;
 
     if(this->is_first_message_ == true) {
-		this->out_.decoder.classes    = this->decoder_->classes();
-		this->out_.decoder.type 	  = this->decoder_->name();
-		this->out_.decoder.path 	  = this->decoder_->path();
+		this->out_.decoder.classes    = this->decoder_->get_classes();
+		this->out_.decoder.type 	  = this->decoder_->get_name();
+		this->out_.decoder.path 	  = this->decoder_->get_path();
 		this->is_first_message_ = false;
 	}
 }
