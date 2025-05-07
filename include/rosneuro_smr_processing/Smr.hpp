@@ -15,6 +15,8 @@
 #include "rosneuro_pwelch/Pwelch.hpp"
 #include "rosneuro_decoder/Decoder.h"
 // #include "rosneuro_decoder_gaussian/Gaussian.h"
+#include "rosneuro_filters_butterworth/Butterworth.hpp"
+
 
 namespace rosneuro{
 namespace processing{
@@ -37,7 +39,7 @@ class Smr {
 		ros::NodeHandle		   p_nh_;
 		ros::Subscriber		   sub_data_;
 		ros::Publisher		   pub_data_;
-    ros::Publisher       pub_filtered_;
+        ros::Publisher       pub_filtered_;
 
 		std::string          sub_topic_data_;
 		std::string	         pub_topic_data_;
@@ -53,10 +55,16 @@ class Smr {
     rosneuro::Pwelch<double>* 	    pwelch_;
     rosneuro::decoder::Decoder*     decoder_;
 
-    rosneuro::DynamicMatrix<float>  data_in_;
+    rosneuro::DynamicMatrix<float>  data_in_; // [nchannel x nsample]
 	rosneuro::DynamicMatrix<double> data_lap_;
+    rosneuro::DynamicMatrix<double> data_filtered_; // [nsample x nchannel]
+
 	rosneuro::DynamicMatrix<double> psd_;
+
     Eigen::VectorXf                 rawProb_;
+
+    rosneuro::Filter<double>* butter_lp; 
+    rosneuro::Filter<double>* butter_hp; 
     
     bool has_new_data_;
     bool is_first_message_;
@@ -85,6 +93,11 @@ Smr::~Smr(void){
 }
 
 bool Smr::configure(void){
+
+    // Create the filters 
+    // TODO: take these as params
+    this->butter_lp = new rosneuro::Butterworth<double>(rosneuro::ButterType::LowPass, 4, 10.0, 512.0);
+    this->butter_hp = new rosneuro::Butterworth<double>(rosneuro::ButterType::HighPass, 4, 2.0, 512.0);
 	
     // subscriber and advertiser nodes
 	this->pub_data_     = this->p_nh_.advertise<rosneuro_msgs::NeuroOutput>(this->pub_topic_data_, 1);
@@ -188,7 +201,13 @@ void Smr::run(void){
 
 bool Smr::classify(void){
 
-    this->buffer_->add(this->data_in_.transpose().cast<double>()); // [samples x channels]
+    // TODO: the laplacian should be before the buffer I think
+
+    // Piero -- 06/05/2025 use the filtered data
+    //this->buffer_->add(this->data_in_.transpose().cast<double>()); // [samples x channels]
+    // The buffer need to be feeded as [channels x sample]
+    this->buffer_->add(this->data_filtered_.transpose()); // [samples x channels]
+    // TODO: I need to check if this is correct, or I need to transpose it
 
     if(!this->buffer_->isfull()){
         return false;
@@ -227,14 +246,39 @@ void Smr::on_received_data(const rosneuro_msgs::NeuroFrame& msg) {
 
     this->has_new_data_ = true;
 
-	  // Getting pointer to the input data message
+	// Getting pointer to the input data message
     float* ptr_in;
     ptr_in = const_cast<float*>(msg.eeg.data.data());
     this->data_in_ = Eigen::Map<rosneuro::DynamicMatrix<float>>(ptr_in, this->nchannels_, this->nsamples_); // [nchannels x nsamples]
 
+    // Cast to double and move the matrix to be nsample x nchannels
+    rosneuro::DynamicMatrix<double> framedata =  data_in_.cast<double>().transpose();
+    // Apply the filter reqested
+    framedata = this->butter_lp->apply(framedata);
+    framedata = this->butter_hp->apply(framedata);
+    
+    // Cast to vector to give it back to the visualizer
+    std::vector<double> vec(framedata.data(), framedata.data() + framedata.size());
+
+    std::vector<float> vf(vec.size());
+
+    for (size_t i = 0; i < vec.size(); ++i) {
+        vf[i] = static_cast<float>(vec[i]);
+    }
+
+    // Save back the matrix [nsample x nchannels]
+    this->data_filtered_ = framedata;
+
     // set value for the message
     this->out_.neuroheader = msg.neuroheader;
     this->out_filtered_.neuroheader = msg.neuroheader;
+
+    this->out_filtered_.sr = msg.sr;
+    this->out_filtered_.eeg = msg.eeg;
+    this->out_filtered_.eeg.data = vf;
+
+    this->out_filtered_.exg = msg.exg;
+    this->out_filtered_.tri = msg.tri;
 
     if(this->is_first_message_ == true) {
 		    this->out_.decoder.classes    = this->decoder_->getClasses();

@@ -13,6 +13,10 @@ find_package(catkin REQUIRED COMPONENTS
   rosneuro_pwelch
 )
 
+
+find_library(RTF_LIBRARIES rtfilter)
+find_path(RTF_INCLUDE_DIRS rtfilter.h)
+
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES 
@@ -39,9 +43,10 @@ include_directories(
   include
   ${catkin_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIRS}
+  ${RTF_INCLUDE_DIRS}
 )
 
 add_executable(smr src/smr.cpp)
-target_link_libraries(smr ${catkin_LIBRARIES} fftw3)
+target_link_libraries(smr ${catkin_LIBRARIES} fftw3 ${RTF_LIBRARIES} )
 
 

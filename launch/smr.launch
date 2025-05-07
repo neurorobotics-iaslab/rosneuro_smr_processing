@@ -43,7 +43,7 @@
 
     <!-- node -->
 	<node name="smr" pkg="rosneuro_smr_processing" type="smr" output="screen"> 
-        <remap from="/neurodata" to="/neurodata_filtered" />
+        <!-- <remap from="/neurodata" to="/neurodata_filtered" /> -->
 
         <param name="psd_required"       value="False" />
         <param name="laplacian_required" value="False" />
@@ -58,4 +58,5 @@
         <param name="nsamples" 	  value="$(arg nsamples)"/>
         <param name="samplerate"  value='512'/>
 	</node>
+
 </launch>
